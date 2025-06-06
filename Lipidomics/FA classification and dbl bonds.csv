@@ -1,0 +1,287 @@
+Fatty Acid,Category,No.DoubleBonds,MatchFA,Chain Length
+CE (14:0),Cholesteryl Ester,0,CE..14.0.,14
+CE (14:1),Cholesteryl Ester,1,CE..14.1.,14
+CE (15:0),Cholesteryl Ester,0,CE..15.0.,15
+CE (16:0),Cholesteryl Ester,0,CE..16.0.,16
+CE (16:1),Cholesteryl Ester,1,CE..16.1.,16
+CE (17:0),Cholesteryl Ester,0,CE..17.0.,17
+CE (18:0),Cholesteryl Ester,0,CE..18.0.,18
+CE (18:1),Cholesteryl Ester,1,CE..18.1.,18
+CE (18:2),Cholesteryl Ester,2,CE..18.2.,18
+CE (18:3),Cholesteryl Ester,3,CE..18.3.,18
+CE (18:4),Cholesteryl Ester,4,CE..18.4.,18
+CE (20:0),Cholesteryl Ester,0,CE..20.0.,20
+CE (20:1),Cholesteryl Ester,1,CE..20.1.,20
+CE (20:2),Cholesteryl Ester,2,CE..20.2.,20
+CE (20:3),Cholesteryl Ester,3,CE..20.3.,20
+CE (20:4),Cholesteryl Ester,4,CE..20.4.,20
+CE (20:5),Cholesteryl Ester,5,CE..20.5.,20
+CE (22:0),Cholesteryl Ester,0,CE..22.0.,22
+CE (22:1),Cholesteryl Ester,1,CE..22.1.,22
+CE (22:2),Cholesteryl Ester,2,CE..22.2.,22
+CE (22:4),Cholesteryl Ester,4,CE..22.4.,22
+CE (22:5),Cholesteryl Ester,5,CE..22.5.,22
+CE (22:6),Cholesteryl Ester,6,CE..22.6.,22
+CE (24:0),Cholesteryl Ester,0,CE..24.0.,24
+CE (24:1),Cholesteryl Ester,1,CE..24.1.,24
+Cer d18:0 (16:0),Ceramide,0,Cer.d18.0..16.0.,16
+Cer d18:0 (18:1),Ceramide,1,Cer.d18.0..18.1.,18
+Cer d18:0 (22:0),Ceramide,0,Cer.d18.0..22.0.,22
+Cer d18:1 (16:0),Ceramide,0,Cer.d18.1..16.0.,16
+Cer d18:1 (18:0),Ceramide,0,Cer.d18.1..18.0.,18
+Cer d18:1 (20:0),Ceramide,0,Cer.d18.1..20.0.,20
+Cer d18:1 (22:0),Ceramide,0,Cer.d18.1..22.0.,22
+Cer d18:1 (24:0),Ceramide,0,Cer.d18.1..24.0.,24
+Cer d18:1 (24:1),Ceramide,1,Cer.d18.1..24.1.,24
+DG (12:0),Diglyceride,0,DG..12.0.,12
+DG (14:0),Diglyceride,0,DG..14.0.,14
+DG (16:0),Diglyceride,0,DG..16.0.,16
+DG (16:1),Diglyceride,1,DG..16.1.,16
+DG (18:0),Diglyceride,0,DG..18.0.,18
+DG (18:1),Diglyceride,1,DG..18.1.,18
+DG (18:2),Diglyceride,2,DG..18.2.,18
+DG (18:3),Diglyceride,3,DG..18.3.,18
+DG (20:0),Diglyceride,0,DG..20.0.,20
+DG (20:1),Diglyceride,1,DG..20.1.,20
+DG (20:2),Diglyceride,2,DG..20.2.,20
+DG (20:3),Diglyceride,3,DG..20.3.,20
+DG (20:4),Diglyceride,4,DG..20.4.,20
+DG (20:5),Diglyceride,5,DG..20.5.,20
+DG (22:0),Diglyceride,0,DG..22.0.,22
+DG (22:1),Diglyceride,1,DG..22.1.,22
+DG (22:2),Diglyceride,2,DG..22.2.,22
+DG (22:5),Diglyceride,5,DG..22.5.,22
+DG (22:6),Diglyceride,6,DG..22.6.,22
+FA (12:0),Fatty acid,0,FA..12.0.,12
+FA (14:0),Fatty acid,0,FA..14.0.,14
+FA (14:1),Fatty acid,1,FA..14.1.,14
+FA (15:0),Fatty acid,0,FA..15.0.,15
+FA (16:0),Fatty acid,0,FA..16.0.,16
+FA (16:1),Fatty acid,1,FA..16.1.,16
+FA (17:0),Fatty acid,0,FA..17.0.,17
+FA (18:0),Fatty acid,0,FA..18.0.,18
+FA (18:1),Fatty acid,1,FA..18.1.,18
+FA (18:2),Fatty acid,2,FA..18.2.,18
+FA (18:3),Fatty acid,3,FA..18.3.,18
+FA (18:4),Fatty acid,4,FA..18.4.,18
+FA (20:0),Fatty acid,0,FA..20.0.,20
+FA (20:1),Fatty acid,1,FA..20.1.,20
+FA (20:2),Fatty acid,2,FA..20.2.,20
+FA (20:3),Fatty acid,3,FA..20.3.,20
+FA (20:4),Fatty acid,4,FA..20.4.,20
+FA (20:5),Fatty acid,5,FA..20.5.,20
+FA (22:0),Fatty acid,0,FA..22.0.,22
+FA (22:1),Fatty acid,1,FA..22.1.,22
+FA (22:2),Fatty acid,2,FA..22.2.,22
+FA (22:4),Fatty acid,4,FA..22.4.,22
+FA (22:5),Fatty acid,5,FA..22.5.,22
+FA (22:6),Fatty acid,6,FA..22.6.,22
+FA (24:0),Fatty acid,0,FA..24.0.,24
+FA (24:1),Fatty acid,1,FA..24.1.,24
+HexCER d18:1 (16:0),Hexosylceramide,1,HexCER.d18.1..16.0.,16
+HexCER d18:1 (22:1),Hexosylceramide,2,HexCER.d18.1..22.1.,22
+LPC (14:0),Lysophosphatidylcholine,0,LPC..14.0.,14
+LPC (15:0),Lysophosphatidylcholine,0,LPC..15.0.,15
+LPC (16:0),Lysophosphatidylcholine,0,LPC..16.0.,16
+LPC (16:1),Lysophosphatidylcholine,1,LPC..16.1.,16
+LPC (17:0),Lysophosphatidylcholine,0,LPC..17.0.,17
+LPC (18:0),Lysophosphatidylcholine,0,LPC..18.0.,18
+LPC (18:1),Lysophosphatidylcholine,1,LPC..18.1.,18
+LPC (18:2),Lysophosphatidylcholine,2,LPC..18.2.,18
+LPC (18:3),Lysophosphatidylcholine,3,LPC..18.3.,18
+LPC (18:4),Lysophosphatidylcholine,4,LPC..18.4.,18
+LPC (19:0),Lysophosphatidylcholine,0,LPC..19.0.,19
+LPC (20:0),Lysophosphatidylcholine,0,LPC..20.0.,20
+LPC (20:1),Lysophosphatidylcholine,1,LPC..20.1.,20
+LPC (20:2),Lysophosphatidylcholine,2,LPC..20.2.,20
+LPC (20:3),Lysophosphatidylcholine,3,LPC..20.3.,20
+LPC (20:4),Lysophosphatidylcholine,4,LPC..20.4.,20
+LPC (20:5),Lysophosphatidylcholine,5,LPC..20.5.,20
+LPC (22:0),Lysophosphatidylcholine,0,LPC..22.0.,22
+LPC (22:1),Lysophosphatidylcholine,1,LPC..22.1.,22
+LPC (22:2),Lysophosphatidylcholine,2,LPC..22.2.,22
+LPC (22:4),Lysophosphatidylcholine,4,LPC..22.4.,22
+LPC (22:5),Lysophosphatidylcholine,5,LPC..22.5.,22
+LPC (22:6),Lysophosphatidylcholine,6,LPC..22.6.,22
+LPC (24:0),Lysophosphatidylcholine,0,LPC..24.0.,24
+LPC (24:1),Lysophosphatidylcholine,1,LPC..24.1.,24
+LPE (16:0),Lysophosphatidylethanolamine,0,LPE..16.0.,16
+LPE (16:1),Lysophosphatidylethanolamine,1,LPE..16.1.,16
+LPE (17:0),Lysophosphatidylethanolamine,0,LPE..17.0.,17
+LPE (18:0),Lysophosphatidylethanolamine,0,LPE..18.0.,18
+LPE (18:1),Lysophosphatidylethanolamine,1,LPE..18.1.,18
+LPE (18:2),Lysophosphatidylethanolamine,2,LPE..18.2.,18
+LPE (18:3),Lysophosphatidylethanolamine,3,LPE..18.3.,18
+LPE (18:4),Lysophosphatidylethanolamine,4,LPE..18.4.,18
+LPE (19:0),Lysophosphatidylethanolamine,0,LPE..19.0.,19
+LPE (20:0),Lysophosphatidylethanolamine,0,LPE..20.0.,20
+LPE (20:1),Lysophosphatidylethanolamine,1,LPE..20.1.,20
+LPE (20:2),Lysophosphatidylethanolamine,2,LPE..20.2.,20
+LPE (20:3),Lysophosphatidylethanolamine,3,LPE..20.3.,20
+LPE (20:4),Lysophosphatidylethanolamine,4,LPE..20.4.,20
+LPE (20:5),Lysophosphatidylethanolamine,5,LPE..20.5.,20
+LPE (22:0),Lysophosphatidylethanolamine,0,LPE..22.0.,22
+LPE (22:1),Lysophosphatidylethanolamine,1,LPE..22.1.,22
+LPE (22:2),Lysophosphatidylethanolamine,2,LPE..22.2.,22
+LPE (22:4),Lysophosphatidylethanolamine,4,LPE..22.4.,22
+LPE (22:5),Lysophosphatidylethanolamine,5,LPE..22.5.,22
+LPE (22:6),Lysophosphatidylethanolamine,6,LPE..22.6.,22
+LPE (24:1),Lysophosphatidylethanolamine,1,LPE..24.1.,24
+LPG (18:4),Lysohposphatidylglycerol,4,LPG..18.4.,18
+LPG (20:4),Lysohposphatidylglycerol,4,LPG..20.4.,20
+LPI (20:5),Lysophosphatidylinositol,5,LPI..20.5.,20
+LPS (18:0),Lipopolysaccharide,0,LPS..18.0.,18
+LPS (18:4),Lipopolysaccharide,4,LPS..18.4.,18
+LPS (20:1),Lipopolysaccharide,1,LPS..20.1.,20
+LPS (20:4),Lipopolysaccharide,4,LPS..20.4.,20
+LPS (22:1),Lipopolysaccharide,1,LPS..22.1.,22
+LPS (22:2),Lipopolysaccharide,2,LPS..22.2.,22
+LPS (22:5),Lipopolysaccharide,5,LPS..22.5.,22
+LPS (22:6),Lipopolysaccharide,6,LPS..22.6.,22
+PA (34:1),Palmitic acid,1,PA..34.1.,34
+PA (34:4),Palmitic acid,4,PA..34.4.,34
+PA (34:5),Palmitic acid,5,PA..34.5.,34
+PA (36:5),Palmitic acid,5,PA..36.5.,36
+PA (38:5),Palmitic acid,5,PA..38.5.,38
+PA (38:6),Palmitic acid,6,PA..38.6.,38
+PA (40:6),Palmitic acid,6,PA..40.6.,40
+PC (12:0),Phosphatidylcholine,0,PC..12.0.,12
+PC (14:0),Phosphatidylcholine,0,PC..14.0.,14
+PC (14:1),Phosphatidylcholine,1,PC..14.1.,14
+PC (15:0),Phosphatidylcholine,0,PC..15.0.,15
+PC (16:0),Phosphatidylcholine,0,PC..16.0.,16
+PC (16:1),Phosphatidylcholine,1,PC..16.1.,16
+PC (17:0),Phosphatidylcholine,0,PC..17.0.,17
+PC (18:0),Phosphatidylcholine,0,PC..18.0.,18
+PC (18:1),Phosphatidylcholine,1,PC..18.1.,18
+PC (18:2),Phosphatidylcholine,2,PC..18.2.,18
+PC (18:3),Phosphatidylcholine,3,PC..18.3.,18
+PC (18:4),Phosphatidylcholine,4,PC..18.4.,18
+PC (20:0),Phosphatidylcholine,0,PC..20.0.,20
+PC (20:1),Phosphatidylcholine,1,PC..20.1.,20
+PC (20:2),Phosphatidylcholine,2,PC..20.2.,20
+PC (20:3),Phosphatidylcholine,3,PC..20.3.,20
+PC (20:4),Phosphatidylcholine,4,PC..20.4.,20
+PC (20:5),Phosphatidylcholine,5,PC..20.5.,20
+PC (22:1),Phosphatidylcholine,1,PC..22.1.,22
+PC (22:2),Phosphatidylcholine,2,PC..22.2.,22
+PC (22:4),Phosphatidylcholine,4,PC..22.4.,22
+PC (22:5),Phosphatidylcholine,5,PC..22.5.,22
+PC (22:6),Phosphatidylcholine,6,PC..22.6.,22
+PE (14:0),Phosphatidylethaolamine,0,PE..14.0.,14
+PE (14:1),Phosphatidylethaolamine,1,PE..14.1.,14
+PE (15:0),Phosphatidylethaolamine,0,PE..15.0.,15
+PE (16:0),Phosphatidylethaolamine,0,PE..16.0.,16
+PE (16:1),Phosphatidylethaolamine,1,PE..16.1.,16
+PE (17:0),Phosphatidylethaolamine,0,PE..17.0.,17
+PE (18:0),Phosphatidylethaolamine,0,PE..18.0.,18
+PE (18:1),Phosphatidylethaolamine,1,PE..18.1.,18
+PE (18:2),Phosphatidylethaolamine,2,PE..18.2.,18
+PE (18:3),Phosphatidylethaolamine,3,PE..18.3.,18
+PE (18:4),Phosphatidylethaolamine,4,PE..18.4.,18
+PE (20:0),Phosphatidylethaolamine,0,PE..20.0.,20
+PE (20:1),Phosphatidylethaolamine,1,PE..20.1.,20
+PE (20:2),Phosphatidylethaolamine,2,PE..20.2.,20
+PE (20:3),Phosphatidylethaolamine,3,PE..20.3.,20
+PE (20:4),Phosphatidylethaolamine,4,PE..20.4.,20
+PE (20:5),Phosphatidylethaolamine,5,PE..20.5.,20
+PE (22:0),Phosphatidylethaolamine,0,PE..22.0.,22
+PE (22:1),Phosphatidylethaolamine,1,PE..22.1.,22
+PE (22:2),Phosphatidylethaolamine,2,PE..22.2.,22
+PE (22:4),Phosphatidylethaolamine,4,PE..22.4.,22
+PE (22:5),Phosphatidylethaolamine,5,PE..22.5.,22
+PE (22:6),Phosphatidylethaolamine,6,PE..22.6.,22
+PG (14:0),Phosphatidylglycerol,0,PG..14.0.,14
+PG (15:0),Phosphatidylglycerol,0,PG..15.0.,15
+PG (16:0),Phosphatidylglycerol,0,PG..16.0.,16
+PG (16:1),Phosphatidylglycerol,1,PG..16.1.,16
+PG (17:0),Phosphatidylglycerol,0,PG..17.0.,17
+PG (18:0),Phosphatidylglycerol,0,PG..18.0.,18
+PG (18:1),Phosphatidylglycerol,1,PG..18.1.,18
+PG (18:2),Phosphatidylglycerol,2,PG..18.2.,18
+PG (18:3),Phosphatidylglycerol,3,PG..18.3.,18
+PG (20:0),Phosphatidylglycerol,0,PG..20.0.,20
+PG (20:1),Phosphatidylglycerol,1,PG..20.1.,20
+PG (20:2),Phosphatidylglycerol,2,PG..20.2.,20
+PG (20:3),Phosphatidylglycerol,3,PG..20.3.,20
+PG (20:4),Phosphatidylglycerol,4,PG..20.4.,20
+PG (20:5),Phosphatidylglycerol,5,PG..20.5.,20
+PG (22:1),Phosphatidylglycerol,1,PG..22.1.,22
+PG (22:2),Phosphatidylglycerol,2,PG..22.2.,22
+PG (22:4),Phosphatidylglycerol,4,PG..22.4.,22
+PG (22:5),Phosphatidylglycerol,5,PG..22.5.,22
+PG (22:6),Phosphatidylglycerol,6,PG..22.6.,22
+PI (14:0),Phosphatidylinositol,0,PI..14.0.,14
+PI (15:0),Phosphatidylinositol,0,PI..15.0.,15
+PI (16:0),Phosphatidylinositol,0,PI..16.0.,16
+PI (16:1),Phosphatidylinositol,1,PI..16.1.,16
+PI (17:0),Phosphatidylinositol,0,PI..17.0.,17
+PI (18:0),Phosphatidylinositol,0,PI..18.0.,18
+PI (18:1),Phosphatidylinositol,1,PI..18.1.,18
+PI (18:2),Phosphatidylinositol,2,PI..18.2.,18
+PI (18:3),Phosphatidylinositol,3,PI..18.3.,18
+PI (20:0),Phosphatidylinositol,0,PI..20.0.,20
+PI (20:1),Phosphatidylinositol,1,PI..20.1.,20
+PI (20:2),Phosphatidylinositol,2,PI..20.2.,20
+PI (20:3),Phosphatidylinositol,3,PI..20.3.,20
+PI (20:4),Phosphatidylinositol,4,PI..20.4.,20
+PI (20:5),Phosphatidylinositol,5,PI..20.5.,20
+PI (22:0),Phosphatidylinositol,0,PI..22.0.,22
+PI (22:1),Phosphatidylinositol,1,PI..22.1.,22
+PI (22:2),Phosphatidylinositol,2,PI..22.2.,22
+PI (22:4),Phosphatidylinositol,4,PI..22.4.,22
+PI (22:5),Phosphatidylinositol,5,PI..22.5.,22
+PI (22:6),Phosphatidylinositol,6,PI..22.6.,22
+PS (14:0),Phosphatidylserine,0,PS..14.0.,14
+PS (15:0),Phosphatidylserine,0,PS..15.0.,15
+PS (16:0),Phosphatidylserine,0,PS..16.0.,16
+PS (16:1),Phosphatidylserine,1,PS..16.1.,16
+PS (17:0),Phosphatidylserine,0,PS..17.0.,17
+PS (18:0),Phosphatidylserine,0,PS..18.0.,18
+PS (18:1),Phosphatidylserine,1,PS..18.1.,18
+PS (18:2),Phosphatidylserine,2,PS..18.2.,18
+PS (18:3),Phosphatidylserine,3,PS..18.3.,18
+PS (20:0),Phosphatidylserine,0,PS..20.0.,20
+PS (20:1),Phosphatidylserine,1,PS..20.1.,20
+PS (20:2),Phosphatidylserine,2,PS..20.2.,20
+PS (20:3),Phosphatidylserine,3,PS..20.3.,20
+PS (20:4),Phosphatidylserine,4,PS..20.4.,20
+PS (20:5),Phosphatidylserine,5,PS..20.5.,20
+PS (22:0),Phosphatidylserine,0,PS..22.0.,22
+PS (22:1),Phosphatidylserine,1,PS..22.1.,22
+PS (22:2),Phosphatidylserine,2,PS..22.2.,22
+PS (22:4),Phosphatidylserine,4,PS..22.4.,22
+PS (22:5),Phosphatidylserine,5,PS..22.5.,22
+PS (22:6),Phosphatidylserine,6,PS..22.6.,22
+SM (16:0),,0,SM..16.0.,16
+SM (18:0),,0,SM..18.0.,18
+SM (18:1),,1,SM..18.1.,18
+SM (20:0),,0,SM..20.0.,20
+SM (20:1),,1,SM..20.1.,20
+SM (22:0),,0,SM..22.0.,22
+SM (22:1),,1,SM..22.1.,22
+SM (24:0),,0,SM..24.0.,24
+SM (24:1),,1,SM..24.1.,24
+SM (26:0),,0,SM..26.0.,26
+SM (26:1),,1,SM..26.1.,26
+TG (12:0),Triglyceride,0,TG..12.0.,12
+TG (14:0),Triglyceride,0,TG..14.0.,14
+TG (14:1),Triglyceride,1,TG..14.1.,14
+TG (15:0),Triglyceride,0,TG..15.0.,15
+TG (16:0),Triglyceride,0,TG..16.0.,16
+TG (16:1),Triglyceride,1,TG..16.1.,16
+TG (17:0),Triglyceride,0,TG..17.0.,17
+TG (18:0),Triglyceride,0,TG..18.0.,18
+TG (18:1),Triglyceride,1,TG..18.1.,18
+TG (18:2),Triglyceride,2,TG..18.2.,18
+TG (18:3),Triglyceride,3,TG..18.3.,18
+TG (20:0),Triglyceride,0,TG..20.0.,20
+TG (20:1),Triglyceride,1,TG..20.1.,20
+TG (20:2),Triglyceride,2,TG..20.2.,20
+TG (20:3),Triglyceride,3,TG..20.3.,20
+TG (20:4),Triglyceride,4,TG..20.4.,20
+TG (20:5),Triglyceride,5,TG..20.5.,20
+TG (22:1),Triglyceride,1,TG..22.1.,22
+TG (22:4),Triglyceride,4,TG..22.4.,22
+TG (22:5),Triglyceride,5,TG..22.5.,22
+TG (22:6),Triglyceride,6,TG..22.6.,22
