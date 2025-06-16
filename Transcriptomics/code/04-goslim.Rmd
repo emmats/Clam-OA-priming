@@ -1,0 +1,278 @@
+---
+title: "GO Slim"
+author: "Megan Ewing"
+date: "2024-11-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Loading Packages
+
+```{r}
+# # Install Bioconductor packages
+# BiocManager::install("GO.db", ask = FALSE)
+# BiocManager::install("GSEABase", ask = FALSE)
+# # 
+# # Install CRAN packages
+# install.packages("knitr")
+# install.packages("tidyverse")
+
+
+# Load all
+library(GSEABase)
+library(GO.db)
+library(knitr)
+library(tidyverse)
+```
+
+### Prepping GO_BP + Gene List
+
+importing 'master list' with DEG list, counts, stats, etc.. to get GO biological process info
+
+```{r}
+# Load libraries
+# library(dplyr)
+# library(stringr)
+# library(readr)
+
+# Read your CSV file created during annotation
+GOterms <- read_csv("../output/DEG_masterlist.csv")
+head(GOterms)
+
+```
+
+```{r}
+# Clean GO terms to keep only the GO IDs for biological process
+GeneID_GOID <- GOterms %>%
+  mutate(GO_IDs = str_extract_all(Gene.Ontology..biological.process., "GO:\\d+")) %>%  # extract all GO IDs
+  mutate(GO_IDs = sapply(GO_IDs, function(x) paste(x, collapse = ";"))) %>%  # collapse into a single string
+  dplyr::select(LOC, GO_IDs)
+
+# previewiew the result
+head(GeneID_GOID)
+
+write_delim(GeneID_GOID, "../output/GeneID_GOID.tsv")
+```
+
+### Setting GO Variables
+
+```{r set-variables, eval=TRUE}
+# Column names corresponding to gene name/ID and GO IDs
+GO.ID.column <- "GO_IDs"
+gene.ID.column <- "LOC"
+
+# Relative path or URL to input file
+input.file <- "../output/GeneID_GOID.tsv"
+
+
+##### Official GO info - no need to change #####
+goslims_obo <- "goslim_generic.obo"
+goslims_url <- "http://current.geneontology.org/ontology/subsets/goslim_generic.obo"
+```
+
+### Starting GO Retrival
+
+Set GSEAbase location and download goslim_generic.obo
+
+```{r download-generic-goslim-obo, eval=TRUE}
+# Find GSEAbase installation location
+gseabase_location <- find.package("GSEABase")
+
+# Load path to GOslim OBO file
+goslim_obo_destintation <- file.path(gseabase_location, "extdata", goslims_obo, fsep = "/")
+
+# Download the GOslim OBO file
+download.file(url = goslims_url, destfile = goslim_obo_destintation)
+
+# Loads package files
+gseabase_files <- system.file("extdata", goslims_obo, package="GSEABase")
+```
+
+Read in gene/GO file ( i did have to change this slightly from the tutorial)
+
+```{r read-in-gene-file, eval=TRUE}
+full.gene.df <- read_delim(file = input.file)
+
+str(full.gene.df)
+```
+
+Remove rows with NA, remove whitespace in GO IDs column and keep just gene/GO IDs columns
+
+```{r remove-NA-and-uniprotIDs, eval=TRUE}
+
+# Clean whitespace, filter NA/empty rows, select columns, and split GO terms using column name variables
+gene.GO.df <- full.gene.df %>%
+  mutate(!!GO.ID.column := str_replace_all(.data[[GO.ID.column]], "\\s*;\\s*", ";")) %>% # Clean up spaces around ";"
+  filter(!is.na(.data[[gene.ID.column]]) & !is.na(.data[[GO.ID.column]]) & .data[[GO.ID.column]] != "") %>% 
+  dplyr::select(all_of(c(gene.ID.column, GO.ID.column)))
+
+
+str(gene.GO.df)
+```
+
+This flattens the file so all of the GO IDs per gene are separated into one GO ID per gene per row.
+
+```{r flatten-gene-and-GO-IDs, eval=TRUE}
+flat.gene.GO.df <- gene.GO.df %>% separate_rows(!!sym(GO.ID.column), sep = ";")
+
+str(flat.gene.GO.df)
+```
+
+Groups the genes by GO ID (i.e. lists all genes associated with each unique GO ID)
+
+```{r group-by-GO, eval=TRUE}
+grouped.gene.GO.df <- flat.gene.GO.df %>%
+  group_by(!!sym(GO.ID.column)) %>%
+  summarise(!!gene.ID.column := paste(.data[[gene.ID.column]], collapse = ","))
+
+str(grouped.gene.GO.df)
+```
+
+Map GO IDs to GOslims
+
+The mapping steps were derived from this bioconductor forum response
+
+```{r vectorize-GOIDs, eval=TRUE}
+# Vector of GO IDs
+go_ids <- grouped.gene.GO.df[[GO.ID.column]]
+
+str(go_ids)
+```
+
+Creates new OBO Collection object of just GOslims, based on provided GO IDs.
+
+```{r extract-GOslims-from-OBO, eval=TRUE}
+
+# Create GSEAbase GOCollection using `go_ids`
+myCollection <- GOCollection(go_ids)
+
+# Retrieve GOslims from GO OBO file set
+slim <- getOBOCollection(gseabase_files)
+
+str(slim)
+```
+
+Get Biological Process (BP) GOslims associated with provided GO IDs.
+
+```{r retrieve-BP-GOslims, eval=TRUE}
+# Retrieve Biological Process (BP) GOslims
+slimdf <- goSlim(myCollection, slim, "BP", verbose)
+str(slimdf)
+```
+
+Performs mapping of of GOIDs to GOslims
+
+Returns:
+
+GOslim IDs (as rownames) GOslim terms Counts of GO IDs matching to corresponding GOslim Percentage of GO IDs matching to corresponding GOslim GOIDs mapped to corresponding GOslim, in a semi-colon delimited format
+
+```{r map-GO-to-GOslims, eval=TRUE}
+# List of GOslims and all GO IDs from `go_ids`
+gomap <- as.list(GOBPOFFSPRING[rownames(slimdf)])
+
+# Maps `go_ids` to matching GOslims
+mapped <- lapply(gomap, intersect, ids(myCollection))
+
+# Append all mapped GO IDs to `slimdf`
+# `sapply` needed to apply paste() to create semi-colon delimited values
+slimdf$GO.IDs <- sapply(lapply(gomap, intersect, ids(myCollection)), paste, collapse=";")
+
+# Remove "character(0) string from "GO.IDs" column
+slimdf$GO.IDs[slimdf$GO.IDs == "character(0)"] <- ""
+
+# Add self-matching GOIDs to "GO.IDs" column, if not present
+for (go_id in go_ids) {
+  # Check if the go_id is present in the row names
+  if (go_id %in% rownames(slimdf)) {
+    # Check if the go_id is not present in the GO.IDs column
+    # Also removes white space "trimws()" and converts all to upper case to handle
+    # any weird, "invisible" formatting issues.
+    if (!go_id %in% trimws(toupper(strsplit(slimdf[go_id, "GO.IDs"], ";")[[1]]))) {
+      # Append the go_id to the GO.IDs column with a semi-colon separator
+      if (length(slimdf$GO.IDs) > 0 && nchar(slimdf$GO.IDs[nrow(slimdf)]) > 0) {
+        slimdf[go_id, "GO.IDs"] <- paste0(slimdf[go_id, "GO.IDs"], "; ", go_id)
+      } else {
+        slimdf[go_id, "GO.IDs"] <- go_id
+      }
+    }
+  }
+}
+
+str(slimdf)
+```
+
+"Flatten" file so each row is single GO ID with corresponding GOslim rownames_to_column needed to retain row name info
+
+```{r flatten-GOslims-file, eval=TRUE}
+# "Flatten" file so each row is single GO ID with corresponding GOslim
+# rownames_to_column needed to retain row name info
+slimdf_separated <- as.data.frame(slimdf %>%
+  rownames_to_column('GOslim') %>%
+  separate_rows(GO.IDs, sep = ";"))
+
+# Group by unique GO ID
+grouped_slimdf <- slimdf_separated %>%
+  filter(!is.na(GO.IDs) & GO.IDs != "") %>%
+  group_by(GO.IDs) %>%
+  summarize(GOslim = paste(GOslim, collapse = ";"),
+            Term = paste(Term, collapse = ";"))
+
+
+str(grouped_slimdf)
+```
+
+Sorts GOslims by Count, in descending order and then selects just the Term and Count columns.
+
+```{r sort-and-select-slimdf-counts, eval=TRUE}
+
+slimdf.sorted <- slimdf %>% arrange(desc(Count))
+
+slim.count.df <- slimdf.sorted %>% 
+  dplyr::select(Term, Count)
+
+str(slim.count.df)
+```
+
+save as file
+
+```{r}
+
+write.csv(slimdf.sorted, "../output/GOslims.csv")
+
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(stringr)
+library(purrr)
+
+# Step 1: Make sure GO terms are clean and split into vectors
+slimdf_clean <- slimdf %>%
+  mutate(GO_list = str_split(str_replace_all(GO.IDs, "\\s+", ""), ";"))
+
+GeneID_GOID_clean <- GeneID_GOID %>%
+  mutate(GO_list = str_split(str_replace_all(GO_IDs, "\\s+", ""), ";"))
+
+# Step 2: Create a lookup table where each GO term maps to its LOC
+GO_to_LOC <- GeneID_GOID_clean %>%
+  unnest(GO_list) %>%
+  dplyr::select(GO_term = GO_list, LOC)
+
+# Step 3: For each row in slimdf, find matching LOCs
+slimdf_with_LOC <- slimdf_clean %>%
+  mutate(matching_LOCs = map(GO_list, function(go_terms) {
+    matched <- GO_to_LOC %>%
+      filter(GO_term %in% go_terms) %>%
+      pull(LOC)
+    unique(matched)  # Remove duplicates
+  })) %>%
+  mutate(matching_LOCs_str = sapply(matching_LOCs, function(x) paste(x, collapse = ";")))
+
+# View result
+head(slimdf_with_LOC)
+
+```

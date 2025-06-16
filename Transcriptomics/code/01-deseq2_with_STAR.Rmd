@@ -1,0 +1,350 @@
+---
+title: "deseq2 with featurecounts"
+author: "Megan Ewing"
+date: "2025-05-01"
+output: html_document
+---
+
+```{r}
+# Load the DESeq2 library
+# install.packages("BiocManager")
+# BiocManager::install("DESeq2")
+library(DESeq2)
+library(dplyr)
+```
+
+### STAR Count Data
+
+provided by Giles
+
+```{r}
+
+# Read the FeatureCounts output file into R
+STAR <- read.csv("../data/STAR_count_data.csv", header=TRUE, row.names=1)
+head(STAR)
+
+#subset from feature counts of just the count data
+countData <- STAR[, -(31:33)] 
+
+```
+
+Now, the STAR_count_data.csv, has not yet corrected for the mislabing of M-C-193 as M-T-193. The following chunks assigns that column to a new position (among the other control samples) and renames it appropriately.
+
+```{r}
+
+#confirm location of M-T-193
+colnames(countData[16])
+
+```
+
+```{r}
+
+#we're moving it to first postion to ensure grouping with other control samples and renaming to M-C-193, as it should be
+countData <- countData[, c(16, 1:15, 17:ncol(countData))]
+names(countData)[names(countData) == "M.T.193"] <- "M.C.193"
+
+head(countData)
+```
+
+```{r}
+metaData <- data.frame(
+  sample = c("M.C.193", "M.C.216", "M.C.218", "M.C.226", "M.C.306", "M.C.329", "M.C.334", "M.C.337", "M.C.339", "M.C.358", "M.C.360", "M.C.363", "M.C.373", "M.C.482","M.C.488", "M.T.18",  "M.T.20", "M.T.22", "M.T.235", "M.T.245", "M.T.29", "M.T.31", "M.T.32", "M.T.399", "M.T.43", "M.T.44", "M.T.500", "M.T.7", "M.T.83", "M.T.8"),
+  treatment = c(rep("control", 15), rep("treatment", 15))
+  )
+```
+
+### Running DESeq (initial, no pre-filter)
+
+```{r}
+# Create a DESeqDataSet object
+dds <- DESeqDataSetFromMatrix(countData,
+                              colData = metaData,
+                              design = ~ treatment)
+
+# Normalize the data
+dds <- DESeq(dds)
+
+# Perform differential expression analysis
+res <- results(dds)
+
+```
+
+### Filter Parameters: Determining Filter Parameters Based of Count Summary Stats
+
+```{r}
+# Load necessary libraries
+library(DESeq2)
+library(ggplot2)
+library(reshape2)
+
+# Assume `dds` is your DESeqDataSet object
+
+# Extract the counts matrix
+counts_matrix <- counts(dds)
+
+# Convert the counts matrix to a long format for ggplot2
+counts_long <- melt(counts_matrix)
+
+# Rename columns for clarity
+colnames(counts_long) <- c("Gene", "Sample", "Count")
+
+# removing 0 counts
+counts_long <- counts_long[counts_long$Count > 0,]
+
+# summary
+summary(counts_long)
+
+#
+# BOXPLOT
+#
+
+# Rename columns for clarity
+colnames(counts_long) <- c("Gene", "Sample", "Count")
+
+# Plot a single box plot for all counts combined
+ggplot(counts_long, aes(x = "", y = Count)) +
+  geom_boxplot(fill = "blue", color = "black") +
+  theme_minimal() +
+  scale_y_log10() +
+  labs(title = "Box Plot of Read Counts",
+       x = "",
+       y = "Read Count")
+
+# Save the plot
+ggsave("../images/boxplot_of_all_read_counts.png")
+
+
+
+#
+# HISTOGRAM
+#
+
+counts_long <- counts_long[counts_long$Count > 0 & counts_long$Count <= 100, ]
+
+# Plot the histogram
+ggplot(counts_long, aes(x = Count)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Read Counts",
+       x = "Read Count",
+       y = "Frequency")
+
+# Save the plot
+ggsave("../images/histogram_of_read_counts_1to100.png")
+
+
+
+```
+
+### Running DESeq, Seperated Treatment and Control -- INDIVUDALS THRESHOLD, NOT AVERAGE BASED
+
+```{r}
+# Assume `dds` is your DESeqDataSet object
+
+# Pre-filtering step
+# Calculate the counts per gene in the control and treatment samples
+counts_control <- counts(dds)[, 1:15]
+counts_treatment <- counts(dds)[, 16:30]
+
+# Function to check if a gene has at least half(n=8) samples in either/both groups with at least median (27) reads
+has_min_samples <- function(counts, min_samples = 8, min_reads = 27) {
+  rowSums(counts >= min_reads) >= min_samples
+}
+
+# Filter genes that have at least 8 samples with at least 27 reads in either control or treatment
+filter <- has_min_samples(counts_control) | has_min_samples(counts_treatment)
+dds2 <- dds[filter, ]
+
+# Normalize the data
+dds2 <- DESeq(dds2)
+
+# Perform differential expression analysis
+res2 <- results(dds2)
+
+# Save the results
+write.table(res2, "../output/DESeq_res-ToC_8ind27r.tab", row.names = TRUE, col.names = TRUE)
+
+```
+
+Getting full counts
+
+```{r}
+
+# Extract counts and normalize
+counts_all <- counts(dds2, normalized = TRUE)
+
+# Log-transform counts
+log_counts_all <- log2(counts_all + 1)
+
+# shorten col names
+short_col <- c("M.C.193", "M.C.216", "M.C.218", "M.C.226", "M.C.306", "M.C.329" ,"M.C.334", "M.C.337" ,"M.C.339" ,"M.C.358" ,"M.C.360", "M.C.363", "M.C.373", "M.C.482", "M.C.488", "M.T.18",  "M.T.20" , "M.T.22" , "M.T.235" ,"M.T.245", "M.T.29"  ,"M.T.31" , "M.T.32" , "M.T.399", "M.T.43","M.T.44" , "M.T.500", "M.T.7" ,  "M.T.83" , "M.T.8")
+
+colnames(log_counts_all) <- short_col
+head(log_counts_all)
+
+write.csv(log_counts_all, "../output/logcounts_all-8ind27r_ToC.csv")
+
+```
+
+### Data explore and filtering significant
+
+rename input/output files as needed
+
+```{r}
+allcounts <- read.csv("../output/DESeq_res-ToC_8ind27r.tab", sep="")
+head(allcounts)
+
+# Extract significant results
+sigresults <- res2[which(res2$padj < 0.05),]
+
+# Explore the results
+head(sigresults)
+
+write.table(sigresults,"../output/DEGstats_ToC_8ind27r.tab", row.names = T, col.names = T)
+
+# peeking at sigresults
+sigres_table <- read.csv("../output/DEGstats_ToC_8ind27r.tab", sep="")
+head(sigres_table)
+
+sigDEGname <- row.names(sigres_table)
+
+# write.table(sigDEGname, "../output/0807-DEGnames_ToC_8ind27r.tab", sep = "\t", row.names = FALSE, col.names = FALSE, quote = FALSE)
+
+```
+
+### Heatmap w/ LOC
+
+we had so few DEGs, makes sense to put all in one heatmap
+
+```{r}
+
+library(pheatmap)
+
+res_ordered <- res2[order(res2$padj), ]
+
+# getting a all (replace 1:# with is total # of DEGs (can glance at stored value sigDEGname))
+all_deg <- row.names(res_ordered)[1:48]
+
+# Extract counts and normalize
+counts <- counts(dds2, normalized = TRUE)
+counts_deg <- counts[all_deg, ]
+
+# Log-transform counts
+log_counts_deg <- log2(counts_deg + 1)
+
+# shorten col names
+short_col <- c("M.C.193",  "M.C.216", "M.C.218", "M.C.226", "M.C.306", "M.C.329" ,"M.C.334", "M.C.337" ,"M.C.339" ,"M.C.358" ,"M.C.360", "M.C.363", "M.C.373", "M.C.482", "M.C.488", "M.T.18",  "M.T.20" , "M.T.22" , "M.T.235" ,"M.T.245", "M.T.29"  ,"M.T.31" , "M.T.32" , "M.T.399", "M.T.43"
+,"M.T.44" , "M.T.500", "M.T.7" ,  "M.T.83" , "M.T.8")
+
+colnames(log_counts_deg) <- short_col
+head(log_counts_deg)
+
+# write.csv(log_counts_deg, "../output/1020-STAR-logcounts_allDEG_8ind27r_ToC.csv")
+
+# Open a PNG device to save the plot
+# change naming scheme and cluster_col argument as appropriate.
+# cluster_cols = F: ****heatmap_unclust.png
+# cluster_cols = T: ****heatmap_clust.png
+
+png("../images/DEG_LOC_heatmap_unclust.png", width = 500, height = 700)
+
+# Generate the heatmap
+pheatmap(log_counts_deg, 
+         scale = "row", 
+         cluster_cols = F,
+         main = "Heatmap All DEGs (padj < 0.05) clustered")
+
+# Close the PNG device
+dev.off()
+
+```
+
+### Heatmap w/ Names
+
+prep data
+
+```{r}
+# Order results by adjusted p-value
+res_ordered <- res2[order(res2$padj), ]
+
+# Select differentially expressed genes (DEGs)
+all_deg <- row.names(res_ordered)[1:48]
+
+# Extract and normalize counts
+counts <- counts(dds2, normalized = TRUE)
+counts_deg <- counts[all_deg, ]
+
+# Log-transform counts
+log_counts_deg <- log2(counts_deg + 1)
+
+```
+
+prepping descriptive row names
+
+```{r}
+# create column with row names (LOC), so we can make a heatmap that has gene names instead of LOC# on it
+
+STAR2 <- STAR
+STAR2$LOC <- rownames(STAR)
+head(STAR2)
+
+```
+
+```{r}
+
+# make dataframe with just LOC and description
+DEG_names <- data.frame("LOC" = STAR2$LOC, "Description" = STAR2$Desc)
+head(DEG_names)
+
+```
+
+```{r}
+# Ensure the row names of the heatmap data are stored
+row_names_current <- rownames(log_counts_deg)
+
+# Map current row names to new descriptions using DEG_names dataframe
+new_gene_names <- DEG_names$Description[match(row_names_current, DEG_names$LOC)]
+
+# Assign the new names to the heatmap dataframe
+rownames(log_counts_deg) <- new_gene_names
+head(log_counts_deg)
+
+```
+
+```{r}
+library(pheatmap)
+
+# Shorten column names
+short_col <- c("M.C.193", "M.C.216", "M.C.218", "M.C.226", "M.C.306", "M.C.329",
+               "M.C.334", "M.C.337", "M.C.339", "M.C.358", "M.C.360", "M.C.363",
+               "M.C.373", "M.C.482", "M.C.488", "M.T.18", "M.T.20", "M.T.22",
+               "M.T.235", "M.T.245", "M.T.29", "M.T.31", "M.T.32", "M.T.399",
+               "M.T.43", "M.T.44", "M.T.500", "M.T.7", "M.T.83", "M.T.8")
+
+colnames(log_counts_deg) <- short_col
+
+# Define conditions (Ensure this matches the column order)
+condition_vector <- c(rep("Ambient", 15), rep("Low_pH", 15))  
+
+# Create annotation for the heatmap
+annotation_col <- data.frame(Parental_Condition = factor(condition_vector))
+rownames(annotation_col) <- short_col  # Ensure rownames match column names of data
+
+# Define colors for annotation
+ann_colors <- list(Parental_Condition = c(Ambient = "darkblue", Low_pH = "goldenrod1"), Border = "grey")
+
+# Save the heatmap
+png("../images/DEG_named_heatmap_unclust.png", width = 1000, height = 700)
+
+pheatmap(log_counts_deg, 
+         scale = "row", 
+         cluster_cols = FALSE, 
+         border_color = "grey", 
+         annotation_col = annotation_col,  # Add annotation
+         annotation_colors = ann_colors, # Define annotation colors
+         labels_col = ""
+        )   
+
+dev.off()
+
+```

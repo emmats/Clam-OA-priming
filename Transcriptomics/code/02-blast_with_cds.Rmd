@@ -1,0 +1,164 @@
+---
+title: "Blast with coding sequences"
+output: html_document
+date: "2024-05-10"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Before starting, make a directory/repo to do all this in that contains the following folders:
+
+-   Code (this is where this/the code file should be)
+
+-   Data
+
+-   Output
+
+There are some packages that are used in this process including Dplyr, Stringr, ggplot2, and DT. Packages are installed/loaded here (disregard chunk if already loaded)
+
+```{r}
+
+# if you need to install, uncomment the following: 
+# install.packages("BiocManager")
+# BiocManager::install("Biostrings")
+# install.packages("ggplot2")
+# install.packages('DT')
+# install.packages('dplyr')
+# install.packages('stringr')
+
+# load installed packages
+library(BiocManager)
+library(Biostrings)
+library(ggplot2)
+library(DT)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(readr)
+
+
+```
+
+## 1. Database Creation
+
+[**This part is not unique to your file**]{.underline}, it is creating the database you will use when running blast on your file (ie. you don't need to change this section with each different file of interest).
+
+### Obtain Fasta (UniProt/Swiss-Prot)
+
+```{bash}
+cd ../data
+curl -O https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz
+mv uniprot_sprot.fasta.gz uniprot_sprot_r2024_02.fasta.gz
+gunzip -k uniprot_sprot_r2024_02.fasta.gz
+```
+
+### Making the Database
+
+```{bash}
+mkdir ../blastdb
+/home/shared/ncbi-blast-2.15.0+/bin/makeblastdb \
+-in ../data/uniprot_sprot_r2024_02.fasta \
+-dbtype prot \
+-out ../blastdb/uniprot_sprot_r2024_02
+```
+
+## 2. Getting the query fasta file
+
+This is where you start [**changing things for your specific file**]{.underline} of interest.
+
+We already have our query rna fasta file.
+
+Taking a peek at that file via `head()` and getting a count of sequences
+
+```{bash}
+
+head -3 ../data/ncbi_dataset/data/GCF_026571515.1/cds_from_genomic.fna
+
+```
+
+```{bash}
+
+echo "How many sequences are there?"
+grep -c ">" ../data/ncbi_dataset/data/GCF_026571515.1/cds_from_genomic.fna
+
+```
+
+## 3. Running Blastx
+
+```{bash}
+/home/shared/ncbi-blast-2.15.0+/bin/blastx \
+-query ../data/ncbi_dataset/data/GCF_026571515.1/cds_from_genomic.fna \
+-db ../blastdb/uniprot_sprot_r2024_02 \
+-out ../output/blastout_cds_raw.tab \
+-evalue 1E-5 \
+-num_threads 20 \
+-max_target_seqs 1 \
+-outfmt 6
+```
+
+Peeking at the output file
+
+```{bash}
+head -10 ../output/blastout_cds_raw.tab
+```
+
+```{bash}
+echo "Number of lines in output"
+wc -l ../output/blastout_cds_raw.tab
+```
+
+## Blast cds output does not have LOC information in output, here we will retrieve that to prep for joining with deseq2 out.
+
+```{bash}
+ cat ../data/ncbi_dataset/data/GCF_026571515.1/cds_from_genomic.fna | grep ">" > ../output/cds_from_genomic_headers.txt
+
+```
+
+```{r}
+# from lauras comment: https://github.com/RobertsLab/resources/issues/1897
+
+rphil.blast.cds.headers <- read_delim(file = "../output/cds_from_genomic_headers.txt", delim = "nothing", col_names = "all") %>% 
+  mutate(cds=gsub(">| \\[", "", str_extract(all, ">lcl\\|(.*?) \\[")),
+         gene=gsub("gene=|\\]", "", str_extract(all, "gene=(.*?)\\]")),
+         ncbi_id=gsub("db_xref=GeneID:|\\]", "", str_extract(all, "db_xref=GeneID:(.*?)\\]")),
+         protein=gsub("protein=|\\]", "", str_extract(all, "protein=(.*?)\\]")),
+         protein_id=gsub("protein_id=|\\]", "", str_extract(all, "protein_id=(.*?)\\]")),
+         location=gsub("location=|\\]", "", str_extract(all, "location=(.*?)\\]")),
+         gbkey=gsub("gbkey=|\\]", "", str_extract(all, "gbkey=(.*?)\\]"))) %>% 
+  dplyr::select(-all)
+```
+
+```{r}
+# from lauras comment: https://github.com/RobertsLab/resources/issues/1897 
+
+rphil.blast.cds <- right_join(rphil.blast.cds.headers,
+                            read_delim(file = "../output/blastout_cds_raw.tab",
+                                       delim = "\t", 
+                                       col_names = c("cds", "saccver", "pident", "length",
+                                                     "mismatch", "gapopen", "qstart", "qend",
+                                                     "sstart", "send", "evalue", "bitscore")), 
+                                        by="cds") 
+
+
+write.table(rphil.blast.cds,"../output/blastout_cds_wLOC.tab", col.names = T)
+
+```
+
+```{r}
+# making new blast result that has just the best hit -- getting it down to the gene level instead of isoform
+
+# Load necessary library
+library(dplyr)
+
+# Read BLAST results
+blast_results <- rphil.blast.cds
+
+# Extract the best hit based on the lowest e-value for each gene
+best_hits <- blast_results %>% group_by(gene) %>% dplyr::slice(which.min(evalue)) %>% separate(saccver, sep="\\|", into=c("na", "SPID", "gene.Uni"), remove = F) %>% dplyr::select(-na) %>% separate(gene.Uni, sep="_", into=c("gene.Uni", "species"), remove=T)
+
+# Save best hits
+write.table(best_hits, "../output/blastout_cds_genelevel.tab", row.names = T, col.names = T)
+
+```
