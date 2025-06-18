@@ -1,0 +1,240 @@
+Manila Clam - R. phillippinarum
+PI: Mac, Larken
+
+
+RNA-Seq Project
+30 Samples, one treatment, one control
+M-T-193 is mislabeled, it should be control
+
+
+Paired reads, RNA, Illumina 150bp
+
+
+Reference
+https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=129788
+https://pubmed-ncbi-nlm-nih-gov.offcampus.lib.washington.edu/36508337/
+
+
+2023-08-23
+Running cutadapt (v4.2)
+
+
+cutadapt script:
+#!/bin/bash
+
+
+#SBATCH --job-name=cutadapt
+#SBATCH -c 20
+#SBATCH -t 0
+#SBATCH --mail-user=giles.goetz@noaa.gov
+#SBATCH --mail-type=ALL
+
+
+source ~/.bashrc
+
+
+conda activate cutadapt
+
+
+BASE=/share/nwfsc/ggoetz/202308-manila_clam-rnaseq
+IN=${BASE}/raw
+OUT=${BASE}/trimmed
+
+
+if [ ! -d ${OUT} ]; then
+        mkdir -p ${OUT}
+fi
+
+
+SAMPLES=$(ls ${IN}/*_R1_*.gz | \
+        awk -F '/' '{print $NF}' | \
+        awk -F "_" '{print $1}')
+
+
+for sample in ${SAMPLES}
+do
+        echo ${sample}
+        cutadapt \
+            -j 0 \
+            -o ${OUT}/${sample}.trimmed.R1.fastq.gz \
+            -p ${OUT}/${sample}.trimmed.R2.fastq.gz \
+            -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA \
+            -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT \
+            -q 15,10 \
+            -m 40 \
+            --trim-n \
+            ${IN}/${sample}_R1_*.fastq.gz \
+            ${IN}/${sample}_R2_*.fastq.gz \
+            &> ${OUT}/cutadapt.${sample}.log
+done
+
+
+2023-11-20
+Mac sent me a link to NCBI's latest annotation to the manila clam assembly.
+
+
+https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_026571515.1/
+
+
+Downloaded the genome fasta file, gtf file and gff file. Using them with STAR 
+
+
+STAR genome reference command:
+STAR --runThreadN 20 --runMode genomeGenerate --genomeDir ./STAR_GCF_026571515.1_ASM2657151v2 --genomeFastaFiles ./GCF_026571515.1_ASM2657151v2_genomic.fna --sjdbGTFfile ./GCF_026571515.1_ASM2657151v2_genomic.gtf --sjdbOverhang 149
+
+
+STAR alignment command:
+#!/bin/bash
+
+
+#SBATCH --job-name=STAR_AlignDR
+#SBATCH --output=STAR_AlignDR.%A.txt
+#SBATCH -c 20
+#SBATCH -t 0
+#SBATCH --mail-user=giles.goetz@noaa.gov
+#SBATCH --mail-type=ALL
+
+
+module load aligners/star/2.7.10a
+
+
+BASE=/share/nwfsc/ggoetz/202308-manila_clam-rnaseq
+REF=${BASE}/reference/STAR_GCF_026571515.1_ASM2657151v2
+IN=${BASE}/trimmed
+OUT=${BASE}/star/GCF_026571515.1_ASM2657151v2
+
+
+if [ ! -d ${OUT} ]; then
+    mkdir -p ${OUT}
+fi
+
+
+SAMPLES=$(ls ${IN}/*.R1.fastq.gz | awk -F "/" '{print $NF}' |
+    awk -F "." '{print $1}')
+
+
+for SAMPLE in ${SAMPLES}
+do
+    STAR \
+        --runThreadN 20 \
+        --genomeDir ${REF} \
+        --readFilesCommand zcat \
+        --readFilesIn ${IN}/${SAMPLE}.*.R1.fastq.gz ${IN}/${SAMPLE}.*.R2.fastq.gz \
+        --outFileNamePrefix ${OUT}/${SAMPLE}. \
+        --outSAMtype BAM SortedByCoordinate \
+        --quantMode GeneCounts \
+        &> ${OUT}/star.align.log
+done
+2023-11-21
+STAR finished aligning. Stats posted to spreadsheet. Average mapping rate for unique mapping percentage was 75.4%. The average percentage for too short was 19.8%.
+2024-07-10
+Adding R code used to make count file
+
+
+R Code:
+################################################################################
+# M. Gavery - Manila Clam RNASeq
+################################################################################
+library(DESeq2)
+
+
+setwd("/Users/giles.goetz/data/mgavery/202308-manila_clam-rnaseq")
+
+
+# GCF_026571515.1_ASM2657151v2 Reference
+# STAR aligner
+in_folder <- "star/GCF_026571515.1_ASM2657151v2/"
+count_files <- list.files(in_folder, pattern=".tab")
+samples <- gsub(x=count_files, pattern=".ReadsPerGene.out.tab", replacement="")
+
+
+tmp_file <- read.table(file=paste0(in_folder, count_files[1]),
+                           header=F, sep="\t", skip=4, stringsAsFactors=F)
+
+
+num_genes <- nrow(tmp_file)
+num_samples <- length(samples)
+genes <- tmp_file$V1
+
+
+# Build the count_data matrix
+count_data <- matrix(numeric(num_genes * num_samples), nrow=num_genes)
+colnames(count_data) <- samples
+rownames(count_data) <- genes
+
+
+# Read in the various count files
+for (i in 1:length(samples)) {
+  tmp_file <- read.table(file=paste0(in_folder, count_files[i]),
+                             header=F, sep="\t", skip=4, stringsAsFactors=F)
+  count_data[,i] <- tmp_file$V2
+}
+
+
+# Load NCBI data
+ncbi_data <- read.table("ref/GCF_026571515.1-RS_2023_10.ncbi_dataset.tsv",
+                            header=T, stringsAsFactors=F, sep="\t", quote="",
+                            comment.char="", fill=T)
+
+
+gtf_data <- read.table("ref/GCF_026571515.1_ASM2657151v2_genomic.gtf",
+                           header=F, stringsAsFactors=F, sep="\t", quote="")
+
+
+gtf_data_genes <- gtf_data[gtf_data$V3 == "gene", ]
+
+
+gtf_gene_ids <- gsub(x=gtf_data_genes$V9,
+                         pattern="gene_id \\\"(\\S+)\\\"; transcript_id (.*)",
+                         replacement="\\1", perl=T)
+
+
+gtf_gene_symbols <- ifelse(grepl(x=gtf_data_genes$V9, pattern=" gene "),
+                               gsub(x=gtf_data_genes$V9,
+                                    pattern=".*; gene \\\"([^;]+)\\\"; .*",
+                                    replacement="\\1", perl=T),
+                               "")
+
+
+gtf_gene_biotypes <- gsub(x=gtf_data_genes$V9,
+                              pattern="(.*); gene_biotype \\\"([^;]+)\\\"; (.*)",
+                              replacement="\\2", perl=T)
+
+
+gtf_gene_descs <- ifelse(grepl(x=gtf_data_genes$V9, pattern="description"),
+                             gsub(x=gtf_data_genes$V9,
+                                  pattern="(.*) description \\\"([^;]+)\\\"; gbkey (.*)",
+                                  replacement="\\2", perl=T),
+                             "")
+
+
+# Combine
+gtf_gene_info <- data.frame(Gene=gtf_gene_ids,
+                                Symbol=gtf_gene_symbols,
+                                Desc=gtf_gene_descs,
+                                Type=gtf_gene_biotypes,
+                                stringsAsFactors=F)
+
+
+# Remove last row since its a dup
+gtf_gene_info <- gtf_gene_info[-nrow(gtf_gene_info),]
+
+
+# 610 pseudo genes that don't have any exon/CDS info so STAR ignored them
+missing_genes <- gtf_gene_ids[!(gtf_gene_ids %in% rownames(count_data))]
+
+
+# Merging data
+
+
+# Merge Count data with gene info
+count_data_winfo <- merge(count_data, gtf_gene_info, by.x=0, by.y=1, all.x=T)
+colnames(count_data_winfo)[1] <- "GeneID"
+dim(count_data_winfo)
+head(count_data_winfo)
+
+
+
+
+# Write files
+write.csv(count_data_winfo, file="STAR_count_data.csv", row.names=F)

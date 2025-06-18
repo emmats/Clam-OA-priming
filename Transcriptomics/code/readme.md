@@ -4,7 +4,9 @@ naming scheme is `##-description` where \## is the number of the step (step 1 be
 
 ### General Workflow
 
-Retrieved egg transcripts STAR count matrix from Giles Goetz (NOAA).
+Retrieved egg transcripts STAR count matrix from Giles Goetz (NOAA) and Mackenzie Gavery (NOAA)
+
+-   `00-RNA-SeqScript _trimming through_countfile_textfile.txt` -- Text file that includes the trimming, mapping and countfile generation script
 
 -   `01-deseq2_with_STAR.Rmd` -- Pre-filters STAR count matrix and runs DESeq2 to determine differentially expressed genes (DEGs)
 
@@ -14,4 +16,4 @@ Retrieved egg transcripts STAR count matrix from Giles Goetz (NOAA).
 
 -   `04-goslim.Rmd` -- Uses GO terms identified via BLAST to get 'slims' for all biological process GO terms.
 
--   `05-chisq_rnatypes.Rmd` -- Assesses if type distribution was different between control and primed eggs
+-   `05-Manila_clam_oocyte_summarize.R` -- Summarizing the proportion reads mapping to each RNA type
