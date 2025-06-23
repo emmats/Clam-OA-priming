@@ -59,5 +59,5 @@ uwdata_blanked = left_join(
   group_by(id)
 
 # save parsed data to a new TSV
-uwdata_long %>% 
+uwdata_blanked %>% 
   write_tsv(file_tidy)

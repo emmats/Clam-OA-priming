@@ -299,6 +299,55 @@ arrangeGrob(
 ) %>% 
   ggsave(here("04-pdf", "Fig5_20250613a.pdf"), ., width = 120, height = 60, units = "mm")
 
+#### STATISTICS
+
+## run t-tests to compare CLI and DBI between treatments within each focal class
+pairwise_compare = bind_rows(
+  class_foci %>% 
+    left_join(uwdata, by = "class", relationship = "many-to-many") %>% 
+    # sum compounds by saturation level within each individual
+    group_by(eid, trt, subs, carbon) %>% 
+    mutate(frac_molar = sum(frac_molar)) %>% 
+    group_by(eid, trt, subs) %>% 
+    summarise(
+      par = "cli",
+      val = weighted.mean(carbon, frac_molar)
+    ),
+  class_foci %>% 
+    left_join(uwdata, by = "class", relationship = "many-to-many") %>% 
+    # sum compounds by saturation level within each individual
+    group_by(eid, trt, subs, dbonds) %>% 
+    mutate(frac_molar = sum(frac_molar)) %>% 
+    group_by(eid, trt, subs) %>% 
+    summarise(
+      par = "dbi",
+      val = weighted.mean(dbonds, frac_molar)
+    )
+) %>% 
+  # do the tests
+  group_by(subs, par) %>% 
+  summarise(teetest = t.test(
+    x = cur_data() %>% filter(trt == 'C') %>% .$val,
+    y = cur_data() %>% filter(trt == 'T') %>% .$val
+  ) %>% broom::tidy() %>% list()) %>% 
+  unnest(teetest) %>% 
+  # FWER correction
+  mutate(pval_adj = p.value %>% p.adjust(method = "holm"))
+
+# what is the minimum adjusted p-value in this family?
+pairwise_compare$pval_adj %>% min()
+
+## Try comparing total lipid abundance
+uwdata %>% 
+  group_by(trt, eid) %>% 
+  summarise(totabund = sum(rab)) %>% 
+  ungroup() %>% 
+  summarise(teetest = t.test(
+    x = cur_data() %>% filter(trt == 'C') %>% .$totabund,
+    y = cur_data() %>% filter(trt == 'T') %>% .$totabund
+  ) %>% broom::tidy() %>% list()) %>% 
+  unnest(teetest)
+
 #### SCRATCH/SUPP PLOTS
 
 ## PLOT1: all lipid species, plotted individually

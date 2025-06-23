@@ -2,6 +2,7 @@ library(tidyverse)
 library(here)
 
 source(here("03-scripts", "seelipids_helpers.R"))
+source(here("03-scripts", "parse_uw.R"))
 
 # load the parsed data
 file_tidy = here("02-tidydata", "uw_tidy.tsv")
