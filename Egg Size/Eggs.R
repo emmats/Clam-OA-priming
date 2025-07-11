@@ -21,13 +21,14 @@ egg.size2<-lme(Area~as.factor(Treatment), random=~1|Clam_Num, data=egg.avg2, na.
 
 summary(egg.size2)
 
-#histogram of egg surface area by treatment
-ggplot(data=egg.dat, aes(x=Area, fill=Treatment)) +
-  geom_histogram(alpha=0.7, binwidth=20) +
-  geom_vline(xintercept=3755.66, color='turquoise')+
-  geom_vline(xintercept=3686.09, color='coral')+
+#plot of egg size by individual clam and treatment
+ggplot(data=egg.dat, aes(x=interaction(as.factor(Clam_Num), Treatment), y=Area, fill=Treatment)) +
+  geom_boxplot() +
   theme_bw() +
-  scale_fill_manual(values=c('turquoise', 'coral')) +
-  xlab('Oocyte Surface Area') +
-  ylab('Frequency of Oocyte Size')
-
+  geom_hline(yintercept=3755.66, color='darkblue', linetype='dashed')+
+  geom_hline(yintercept=3686.09, color='goldenrod1', linetype='dashed')+
+  scale_fill_manual(values=c('darkblue', 'goldenrod1')) +
+  scale_x_discrete(labels = c('199', '211', '218', '226', '310', '319', '334', '341', '363', '376', '460', '482', '488', '7', '24', '30', '33', '43', '44', '83', '88', '383')) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  xlab('Clam ID') +
+  ylab('Oocyte Surface Area')
